@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold text-primary mb-0"> Quản lý Sách</h2>
+     
+    </div>
+    <div class="d-flex gap-2">
+        {% if total_categories == 0 %}
+        <a href="{{ url_for('seed_data') }}" class="btn btn-warning fw-semibold">+ Nạp dữ liệu mẫu</a>
+        {% endif %}
+        <a href="{{ url_for('category_add') }}" class="btn btn-outline-primary fw-semibold">+ Thêm Danh mục</a>
+        <a href="{{ url_for('book_add') }}" class="btn btn-primary fw-semibold">+ Thêm Sách mới</a>
+    </div>
+</div>
+
+<!-- 4 Thẻ thống kê tổng quan -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-primary border-4">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase">Tổng Danh mục</div>
+                <div class="fs-2 fw-bold text-primary mt-1">{{ total_categories }}</div>
+                <a href="{{ url_for('category_list') }}" class="small text-decoration-none">Quản lý danh mục &rarr;</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase">Tổng Đầu sách</div>
+                <div class="fs-2 fw-bold text-success mt-1">{{ total_books }}</div>
+                <a href="{{ url_for('book_list') }}" class="small text-decoration-none">Xem tất cả sách &rarr;</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm h-100 border-start border-info border-4">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase">Tổng Bản sách tồn kho</div>
+                <div class="fs-2 fw-bold text-info mt-1">{{ total_quantity }}</div>
+                <span class="small text-muted">Tổng số lượng các cuốn</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row g-4">
+    <!-- Bảng thống kê Sách theo từng Danh mục -->
+    <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Thống kê theo Danh mục Sách</h5>
+                <a href="{{ url_for('category_list') }}" class="btn btn-sm btn-outline-secondary">Xem chi tiết</a>
+            </div>
+            <div class="card-body p-0">
+                {% if categories %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên danh mục</th>
+                                <th class="text-center">Số đầu sách</th>
+                                <th class="text-center">Tổng SL</th>
+                                <th class="text-end">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cat in categories %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('book_list', category_id=cat.id) }}"
+                                        class="fw-semibold text-decoration-none">
+                                        {{ cat.name }}
+                                    </a>
+                                    {% if cat.description %}
+                                    <div class="small text-muted text-truncate" style="max-width: 260px;">{{
+                                        cat.description }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary rounded-pill">{{ cat.books | length }}</span>
+                                </td>
+                                <td class="text-center">
+                                    {{ cat.books | sum(attribute='quantity') }}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('book_list', category_id=cat.id) }}"
+                                        class="btn btn-sm btn-outline-primary">Xem sách</a>
+                                    <a href="{{ url_for('book_add', category_id=cat.id) }}"
+                                        class="btn btn-sm btn-outline-success">+ Thêm sách</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    Chưa có danh mục nào. <a href="{{ url_for('seed_data') }}">Bấm vào đây để nạp dữ liệu mẫu</a>.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sách mới thêm gần đây -->
+    <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Sách mới cập nhật</h5>
+                <a href="{{ url_for('book_list') }}" class="btn btn-sm btn-outline-secondary">Tất cả sách</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_books %}
+                <ul class="list-group list-group-flush">
+                    {% for b in recent_books %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <div class="fw-semibold">{{ b.title }}</div>
+                            <div class="small text-muted">
+                                Mã: <strong>{{ b.code }}</strong> | {{ b.author }} |
+                                <span class="badge bg-secondary">{{ b.category.name }}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-danger">{{ b.price | vnd }}</div>
+                            <div class="small text-muted">SL: {{ b.quantity }}</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-4 text-center text-muted">
+                    Chưa có cuốn sách nào trong kho.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

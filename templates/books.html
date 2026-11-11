@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Quản lý Sách{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold text-primary mb-0">Danh sách Sách ({{ books | length }} đầu sách)</h3>
+    <a href="{{ url_for('book_add', category_id=selected_cat_id if selected_cat_id else '') }}"
+        class="btn btn-primary fw-semibold">
+        + Thêm Sách mới
+    </a>
+</div>
+
+<!-- Thanh lọc nhanh theo Danh mục (C 3 & 4) -->
+<div class="mb-3">
+    <span class="fw-semibold me-2">Lọc theo danh mục:</span>
+    <a href="{{ url_for('book_list', q=q if q else None) }}"
+        class="btn btn-sm {% if not selected_cat_id %}btn-primary{% else %}btn-outline-primary{% endif %} me-1 mb-1">
+        Tất cả
+    </a>
+    {% for cat in categories %}
+    <a href="{{ url_for('book_list', category_id=cat.id, q=q if q else None) }}"
+        class="btn btn-sm {% if selected_cat_id == cat.id %}btn-primary{% else %}btn-outline-primary{% endif %} me-1 mb-1">
+        {{ cat.name }} ({{ cat.books | length }})
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Form tìm kiếm sách -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('book_list') }}" class="row g-2">
+            {% if selected_cat_id %}
+            <input type="hidden" name="category_id" value="{{ selected_cat_id }}">
+            {% endif %}
+            <div class="col-12 col-md-9">
+                <input type="text" name="q" value="{{ q }}" class="form-control"
+                    placeholder="Tìm theo tên sách, mã sách hoặc tác giả...">
+            </div>
+            <div class="col-12 col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Tìm kiếm</button>
+                {% if q or selected_cat_id %}
+                <a href="{{ url_for('book_list') }}" class="btn btn-outline-secondary">Tất cả</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng danh sách Sách -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if books %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center" style="width: 55px;">STT</th>
+                        <th style="width: 110px;">Mã sách</th>
+                        <th>Tên sách</th>
+                        <th>Tác giả</th>
+                        <th>Danh mục</th>
+                        <th class="text-end" style="width: 130px;">Giá bìa</th>
+                        <th class="text-center" style="width: 90px;">Số lượng</th>
+                        <th class="text-center" style="width: 160px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in books %}
+                    <tr>
+                        <td class="text-center">{{ loop.index }}</td>
+                        <td class="fw-bold text-secondary">{{ b.code }}</td>
+                        <td class="fw-semibold">{{ b.title }}</td>
+                        <td>{{ b.author }}</td>
+                        <td>
+                            <a href="{{ url_for('book_list', category_id=b.category_id) }}"
+                                class="badge bg-info text-dark text-decoration-none">
+                                {{ b.category.name }}
+                            </a>
+                        </td>
+                        <td class="text-end fw-bold text-danger">{{ b.price | vnd }}</td>
+                        <td class="text-center">
+                            {% if b.quantity > 0 %}
+                            <span class="badge bg-success">{{ b.quantity }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Hết hàng</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('book_edit', book_id=b.id) }}"
+                                class="btn btn-sm btn-outline-warning">Sửa</a>
+                            <form method="POST" action="{{ url_for('book_delete', book_id=b.id) }}" class="d-inline"
+                                onsubmit="return confirm('Bạn có chắc chắn muốn xoá cuốn sách này?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Xoá</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4 text-center text-muted">
+            Không có cuốn sách nào phù hợp.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

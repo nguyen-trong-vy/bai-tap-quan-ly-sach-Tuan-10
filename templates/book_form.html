@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ "Thêm Sách mới" if mode == "add" else "Sửa thông tin Sách" }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0 fw-bold">
+                    {{ "Thêm Sách mới vào Kho" if mode == "add" else "Cập nhật Sách: " ~ book.title }}
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    <!-- Danh mục sách -->
+                    <div class="mb-3">
+                        <label for="category_id" class="form-label fw-semibold">Thuộc Danh mục <span class="text-danger">*</span></label>
+                        <select class="form-select {% if errors.category_id %}is-invalid{% endif %}" id="category_id" name="category_id">
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if category_id == (cat.id | string) %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if errors.category_id %}
+                            <div class="invalid-feedback">{{ errors.category_id }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Mã sách -->
+                    <div class="mb-3">
+                        <label for="code" class="form-label fw-semibold">Mã sách <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control {% if errors.code %}is-invalid{% endif %}"
+                               id="code" name="code" value="{{ code }}"
+                               placeholder="Ví dụ: SACH001">
+                        {% if errors.code %}
+                            <div class="invalid-feedback">{{ errors.code }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tên sách -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-semibold">Tên sách <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control {% if errors.title %}is-invalid{% endif %}"
+                               id="title" name="title" value="{{ title }}"
+                               placeholder="Nhập tên cuốn sách...">
+                        {% if errors.title %}
+                            <div class="invalid-feedback">{{ errors.title }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tác giả -->
+                    <div class="mb-3">
+                        <label for="author" class="form-label fw-semibold">Tác giả <span class="text-danger">*</span></label>
+                        <input type="text"
+                               class="form-control {% if errors.author %}is-invalid{% endif %}"
+                               id="author" name="author" value="{{ author }}"
+                               placeholder="Nhập họ tên tác giả...">
+                        {% if errors.author %}
+                            <div class="invalid-feedback">{{ errors.author }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <!-- Giá bìa -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="price" class="form-label fw-semibold">Giá bìa (VNĐ) <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   class="form-control {% if errors.price %}is-invalid{% endif %}"
+                                   id="price" name="price" value="{{ price }}"
+                                   placeholder="Ví dụ: 125000">
+                            {% if errors.price %}
+                                <div class="invalid-feedback">{{ errors.price }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Số lượng -->
+                        <div class="col-12 col-md-6 mb-3">
+                            <label for="quantity" class="form-label fw-semibold">Số lượng tồn kho <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   class="form-control {% if errors.quantity %}is-invalid{% endif %}"
+                                   id="quantity" name="quantity" value="{{ quantity }}"
+                                   placeholder="Ví dụ: 10">
+                            {% if errors.quantity %}
+                                <div class="invalid-feedback">{{ errors.quantity }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('book_list') }}" class="btn btn-outline-secondary">Quay lại</a>
+                        <button type="submit" class="btn btn-primary fw-semibold px-4">
+                            {{ "Thêm Sách" if mode == "add" else "Lưu thay đổi" }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
